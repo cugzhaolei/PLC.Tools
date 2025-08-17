@@ -22,7 +22,7 @@ namespace PLC.Tools.Publishers
         private readonly string _applicationName;
         private readonly ushort _serverPort;
         private StandardServer _server;
-        private PlcNodeManager _nodeManager;
+        //private PlcNodeManager _nodeManager;
         private bool _isRunning;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly ApplicationConfiguration _config;
@@ -54,13 +54,13 @@ namespace PLC.Tools.Publishers
                 var serverInternal = _server as IServerInternal;
 
 
-                _server.AddNodeManager(new PlcNodeManagerFactory(_config));
+                //_server.AddNodeManager(new PlcNodeManagerFactory(_config));
 
-                _nodeManager = _server.NodeManagerFactories.OfType<PlcNodeManager>()!.FirstOrDefault();
-                if (_nodeManager == null)
-                {
-                    throw new Exception("无法创建PLC节点管理器");
-                }
+                //_nodeManager = _server.NodeManagerFactories.OfType<PlcNodeManager>()!.FirstOrDefault();
+                //if (_nodeManager == null)
+                //{
+                //    throw new Exception("无法创建PLC节点管理器");
+                //}
 
                 _server.Start(_config);
                 _isRunning = true;
@@ -88,19 +88,19 @@ namespace PLC.Tools.Publishers
                 _server = null;
             }
 
-            _nodeManager = null;
+            //_nodeManager = null;
             _isRunning = false;
             Console.WriteLine("OPC UA 服务器已停止");
         }
 
         public Task<bool> PublishDataAsync(PlcData plcData)
         {
-            if (!_isRunning || _nodeManager == null)
+            if (!_isRunning )
                 return Task.FromResult(false);
 
             try
             {
-                _nodeManager.UpdatePlcData(plcData);
+                //_nodeManager.UpdatePlcData(plcData);
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -284,34 +284,34 @@ namespace PLC.Tools.Publishers
     }
 
 
-    /// <summary>
-    /// PLC节点管理器工厂（修正接口实现的返回类型）
-    /// </summary>
-    public class PlcNodeManagerFactory : INodeManagerFactory
-    {
-        private readonly ApplicationConfiguration _configuration;
-        private readonly StringCollection _namespacesUris;  // 修正：使用StringCollection类型
+    ///// <summary>
+    ///// PLC节点管理器工厂（修正接口实现的返回类型）
+    ///// </summary>
+    //public class PlcNodeManagerFactory : INodeManagerFactory
+    //{
+    //    private readonly ApplicationConfiguration _configuration;
+    //    private readonly StringCollection _namespacesUris;  // 修正：使用StringCollection类型
 
-        public PlcNodeManagerFactory(ApplicationConfiguration configuration)
-        {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    //    public PlcNodeManagerFactory(ApplicationConfiguration configuration)
+    //    {
+    //        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            // 修正：初始化StringCollection并添加命名空间URI
-            _namespacesUris = new StringCollection();
-            _namespacesUris.Add("http://plc-data-collector/opcua"); // 与节点管理器中的命名空间一致
-        }
+    //        // 修正：初始化StringCollection并添加命名空间URI
+    //        _namespacesUris = new StringCollection();
+    //        _namespacesUris.Add("http://plc-data-collector/opcua"); // 与节点管理器中的命名空间一致
+    //    }
 
-        // 修正：实现接口要求的StringCollection返回类型
-        public StringCollection NamespacesUris => _namespacesUris;
+    //    // 修正：实现接口要求的StringCollection返回类型
+    //    public StringCollection NamespacesUris => _namespacesUris;
 
-        /// <summary>
-        /// 创建节点管理器实例
-        /// </summary>
-        public INodeManager Create(IServerInternal server, ApplicationConfiguration configuration)
-        {
-            return new PlcNodeManager(server, _configuration);
-        }
-    }
+    //    /// <summary>
+    //    /// 创建节点管理器实例
+    //    /// </summary>
+    //    //public INodeManager Create(IServerInternal server, ApplicationConfiguration configuration)
+    //    //{
+    //    //    return new PlcNodeManager(server, _configuration);
+    //    //}
+    //}
 
     ///// <summary>
     ///// PLC数据节点管理器
