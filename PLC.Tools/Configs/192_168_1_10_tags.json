@@ -1,0 +1,73 @@
+[
+  {
+    "OEE": [
+      {
+        "Name": "Status",
+        "Address": "",
+        "DataType": "String",
+        "DataLength": "8",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "OKCount",
+        "Address": "",
+        "DataType": "Int",
+        "DataLength": "2",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "NGCount",
+        "Address": "",
+        "DataType": "Int",
+        "DataLength": "2",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "CycleTime",
+        "Address": "",
+        "DataType": "Float",
+        "DataLength": "4",
+        "StringEncode": "UTF8"
+      }
+    ],
+    "NGCount": [
+      {
+        "Name": "NG1",
+        "Address": "",
+        "DataType": "Int",
+        "DataLength": "2",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "NG2",
+        "Address": "",
+        "DataType": "Int",
+        "DataLength": "2",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "NG3",
+        "Address": "",
+        "DataType": "Int",
+        "DataLength": "2",
+        "StringEncode": "UTF8"
+      }
+    ],
+    "Property": [
+      {
+        "Name": "Property1",
+        "Address": "",
+        "DataType": "String",
+        "DataLength": "8",
+        "StringEncode": "UTF8"
+      },
+      {
+        "Name": "Property2",
+        "Address": "",
+        "DataType": "String",
+        "DataLength": "8",
+        "StringEncode": "UTF8"
+      }
+    ]
+  }
+]

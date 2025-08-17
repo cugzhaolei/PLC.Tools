@@ -1,0 +1,10 @@
+[
+  {
+    "IpAddress": "192.168.1.10",
+    "Port": 1026,
+    "TargetIOStation": 1023,
+    "NetworkStationNumber": 255,
+    "Name": "PLCx",
+    "Enabled": true
+  }
+]

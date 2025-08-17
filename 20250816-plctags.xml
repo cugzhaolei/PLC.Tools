@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DataTable Interval="1000" SleepTime="0">
+  <DataTableItem Name="status" Address="dStatus" DataTypeCode="string" Length="8" StringEncoding="UTF8" />
+</DataTable>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PLC.Tools": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
