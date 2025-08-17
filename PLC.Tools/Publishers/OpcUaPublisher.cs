@@ -16,272 +16,273 @@ namespace PLC.Tools.Publishers
     /// <summary>
     /// OPC UA 数据发布器实现
     /// </summary>
-    public class OpcUaPublisher : IDataPublisher, IDisposable
-    {
-        private readonly IPlcDataService _plcDataService;
-        private readonly string _applicationName;
-        private readonly ushort _serverPort;
-        private StandardServer _server;
-        //private PlcNodeManager _nodeManager;
-        private bool _isRunning;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly ApplicationConfiguration _config;
+    //public class OpcUaPublisher : IDataPublisher, IDisposable
+    //{
+    //    private readonly IPlcDataService _plcDataService;
+    //    private readonly string _applicationName;
+    //    private readonly ushort _serverPort;
+    //    private StandardServer _server;
+    //    //private PlcNodeManager _nodeManager;
+    //    private bool _isRunning;
+    //    private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+    //    private readonly ApplicationConfiguration _config;
 
-        public string Name => "OPC UA Publisher";
+    //    public string Name => "OPC UA Publisher";
 
-        public OpcUaPublisher(IPlcDataService plcDataService, string applicationName = "PlcDataCollector", ushort serverPort = 4840)
-        {
-            _plcDataService = plcDataService ?? throw new ArgumentNullException(nameof(plcDataService));
-            _applicationName = applicationName;
-            _serverPort = serverPort;
-            _config = CreateApplicationConfiguration();
-        }
+    //    public OpcUaPublisher(IPlcDataService plcDataService, string applicationName = "PlcDataCollector", ushort serverPort = 4840)
+    //    {
+    //        _plcDataService = plcDataService ?? throw new ArgumentNullException(nameof(plcDataService));
+    //        _applicationName = applicationName;
+    //        _serverPort = serverPort;
+    //        _config = CreateApplicationConfiguration();
+    //    }
 
-        public async Task<bool> StartAsync()
-        {
-            if (_isRunning)
-                return true;
+    //    public async Task<bool> StartAsync()
+    //    {
+    //        if (_isRunning)
+    //            return true;
 
-            try
-            {
-                await _config.Validate(ApplicationType.Server);
+    //        try
+    //        {
+    //            await _config.Validate(ApplicationType.Server);
 
-                X509Certificate2 certificate = await LoadOrCreateCertificateAsync();
-                _config.SecurityConfiguration.ApplicationCertificate.Certificate = certificate;
+    //            X509Certificate2 certificate = await LoadOrCreateCertificateAsync();
+    //            _config.SecurityConfiguration.ApplicationCertificate.Certificate = certificate;
 
-                _server = new StandardServer();
+    //            _server = new StandardServer();
 
-                var serverInternal = _server as IServerInternal;
+    //            var serverInternal = _server as IServerInternal;
 
 
-                //_server.AddNodeManager(new PlcNodeManagerFactory(_config));
+    //            //_server.AddNodeManager(new PlcNodeManagerFactory(_config));
 
-                //_nodeManager = _server.NodeManagerFactories.OfType<PlcNodeManager>()!.FirstOrDefault();
-                //if (_nodeManager == null)
-                //{
-                //    throw new Exception("无法创建PLC节点管理器");
-                //}
+    //            //_nodeManager = _server.NodeManagerFactories.OfType<PlcNodeManager>()!.FirstOrDefault();
+    //            //if (_nodeManager == null)
+    //            //{
+    //            //    throw new Exception("无法创建PLC节点管理器");
+    //            //}
 
-                _server.Start(_config);
-                _isRunning = true;
+    //            _server.Start(_config);
+    //            _isRunning = true;
 
-                Console.WriteLine($"OPC UA 服务器已启动 - 地址: {_config.ServerConfiguration.BaseAddresses.First()}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"OPC UA 服务器启动失败: {ex.Message}");
-                return false;
-            }
-        }
+    //            Console.WriteLine($"OPC UA 服务器已启动 - 地址: {_config.ServerConfiguration.BaseAddresses.First()}");
+    //            return true;
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine($"OPC UA 服务器启动失败: {ex.Message}");
+    //            return false;
+    //        }
+    //    }
 
-        public async Task StopAsync()
-        {
-            if (!_isRunning)
-                return;
+    //    public async Task StopAsync()
+    //    {
+    //        if (!_isRunning)
+    //            return;
 
-            _cts.Cancel();
-            if (_server != null)
-            {
-                _server.Stop();
-                _server.Dispose();
-                _server = null;
-            }
+    //        _cts.Cancel();
+    //        if (_server != null)
+    //        {
+    //            _server.Stop();
+    //            _server.Dispose();
+    //            _server = null;
+    //        }
 
-            //_nodeManager = null;
-            _isRunning = false;
-            Console.WriteLine("OPC UA 服务器已停止");
-        }
+    //        //_nodeManager = null;
+    //        _isRunning = false;
+    //        Console.WriteLine("OPC UA 服务器已停止");
+    //    }
 
-        public Task<bool> PublishDataAsync(PlcData plcData)
-        {
-            if (!_isRunning )
-                return Task.FromResult(false);
+    //    public Task<bool> PublishDataAsync(PlcData plcData)
+    //    {
+    //        if (!_isRunning )
+    //            return Task.FromResult(false);
 
-            try
-            {
-                //_nodeManager.UpdatePlcData(plcData);
-                return Task.FromResult(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"OPC UA 数据发布失败: {ex.Message}");
-                return Task.FromResult(false);
-            }
-        }
+    //        try
+    //        {
+    //            //_nodeManager.UpdatePlcData(plcData);
+    //            return Task.FromResult(true);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine($"OPC UA 数据发布失败: {ex.Message}");
+    //            return Task.FromResult(false);
+    //        }
+    //    }
 
-        private ApplicationConfiguration CreateApplicationConfiguration()
-        {
-            var config = new ApplicationConfiguration
-            {
-                ApplicationName = _applicationName,
-                ApplicationUri = $"urn:{System.Net.Dns.GetHostName()}:{_applicationName}",
-                ApplicationType = ApplicationType.Server,
-                SecurityConfiguration = new SecurityConfiguration
-                {
-                    ApplicationCertificate = new CertificateIdentifier
-                    {
-                        StoreType = "Directory",
-                        StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\MachineDefault",
-                        SubjectName = _applicationName
-                    },
-                    TrustedIssuerCertificates = new CertificateTrustList
-                    {
-                        StoreType = "Directory",
-                        StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\UA Certificate Authorities"
-                    },
-                    TrustedPeerCertificates = new CertificateTrustList
-                    {
-                        StoreType = "Directory",
-                        StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\Trusted Peers"
-                    },
-                    RejectedCertificateStore = new CertificateTrustList
-                    {
-                        StoreType = "Directory",
-                        StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\Rejected Certificates"
-                    },
-                    AutoAcceptUntrustedCertificates = true
-                },
-                TransportConfigurations = new TransportConfigurationCollection(),
-                TransportQuotas = new TransportQuotas
-                {
-                    MaxMessageSize = 4 * 1024 * 1024,
-                    OperationTimeout = 15000
-                },
-                ServerConfiguration = new ServerConfiguration
-                {
-                    BaseAddresses = new StringCollection
-                    {
-                        $"opc.tcp://{System.Net.Dns.GetHostName()}:{_serverPort}/{_applicationName}",
-                        $"http://{System.Net.Dns.GetHostName()}:{_serverPort + 1}/{_applicationName}"
-                    },
-                    MinSubscriptionLifetime = 1000,
-                    MaxSubscriptionLifetime = 300000
-                }
-            };
+    //    private ApplicationConfiguration CreateApplicationConfiguration()
+    //    {
+    //        var config = new ApplicationConfiguration
+    //        {
+    //            ApplicationName = _applicationName,
+    //            ApplicationUri = $"urn:{System.Net.Dns.GetHostName()}:{_applicationName}",
+    //            ApplicationType = ApplicationType.Server,
+    //            SecurityConfiguration = new SecurityConfiguration
+    //            {
+    //                ApplicationCertificate = new CertificateIdentifier
+    //                {
+    //                    StoreType = "Directory",
+    //                    StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\MachineDefault",
+    //                    SubjectName = _applicationName
+    //                },
+    //                TrustedIssuerCertificates = new CertificateTrustList
+    //                {
+    //                    StoreType = "Directory",
+    //                    StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\UA Certificate Authorities"
+    //                },
+    //                TrustedPeerCertificates = new CertificateTrustList
+    //                {
+    //                    StoreType = "Directory",
+    //                    StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\Trusted Peers"
+    //                },
+    //                RejectedCertificateStore = new CertificateTrustList
+    //                {
+    //                    StoreType = "Directory",
+    //                    StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\Rejected Certificates"
+    //                },
+    //                AutoAcceptUntrustedCertificates = true
+    //            },
+    //            TransportConfigurations = new TransportConfigurationCollection(),
+    //            TransportQuotas = new TransportQuotas
+    //            {
+    //                MaxMessageSize = 4 * 1024 * 1024,
+    //                OperationTimeout = 15000
+    //            },
+    //            ServerConfiguration = new ServerConfiguration
+    //            {
+    //                BaseAddresses = new StringCollection
+    //                {
+    //                    $"opc.tcp://{System.Net.Dns.GetHostName()}:{_serverPort}/{_applicationName}",
+    //                    $"http://{System.Net.Dns.GetHostName()}:{_serverPort + 1}/{_applicationName}"
+    //                },
+    //                MinSubscriptionLifetime = 1000,
+    //                MaxSubscriptionLifetime = 300000
+    //            }
+    //        };
 
-            config.CertificateValidator = new CertificateValidator();
-            config.CertificateValidator.CertificateValidation += (s, e) =>
-            {
-                if (e.Error.StatusCode == Opc.Ua.StatusCodes.BadCertificateUntrusted)
-                {
-                    e.Accept = true;
-                }
-            };
+    //        config.CertificateValidator = new CertificateValidator();
+    //        config.CertificateValidator.CertificateValidation += (s, e) =>
+    //        {
+    //            if (e.Error.StatusCode == Opc.Ua.StatusCodes.BadCertificateUntrusted)
+    //            {
+    //                e.Accept = true;
+    //            }
+    //        };
 
-            return config;
-        }
+    //        return config;
+    //    }
 
-        private async Task<X509Certificate2> LoadOrCreateCertificateAsync()
-        {
-            return await Task.Run(() =>
-            {
-                string storePath = _config.SecurityConfiguration.ApplicationCertificate.StorePath;
-                string storeType = _config.SecurityConfiguration.ApplicationCertificate.StoreType;
-                string subjectName = _config.SecurityConfiguration.ApplicationCertificate.SubjectName;
+    //    private async Task<X509Certificate2> LoadOrCreateCertificateAsync()
+    //    {
+    //        return await Task.Run(() =>
+    //        {
+    //            string storePath = _config.SecurityConfiguration.ApplicationCertificate.StorePath;
+    //            string storeType = _config.SecurityConfiguration.ApplicationCertificate.StoreType;
+    //            string subjectName = _config.SecurityConfiguration.ApplicationCertificate.SubjectName;
 
-                string resolvedPath = Environment.ExpandEnvironmentVariables(storePath);
-                X509Store store = null;
+    //            string resolvedPath = Environment.ExpandEnvironmentVariables(storePath);
+    //            X509Store store = null;
 
-                try
-                {
-                    if (storeType.Equals("Directory", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (!Directory.Exists(resolvedPath))
-                        {
-                            Directory.CreateDirectory(resolvedPath);
-                        }
-                        store = new X509Store(resolvedPath);
-                    }
-                    else
-                    {
-                        store = new X509Store(storePath, StoreLocation.LocalMachine);
-                    }
+    //            try
+    //            {
+    //                if (storeType.Equals("Directory", StringComparison.OrdinalIgnoreCase))
+    //                {
+    //                    if (!Directory.Exists(resolvedPath))
+    //                    {
+    //                        Directory.CreateDirectory(resolvedPath);
+    //                    }
+    //                    store = new X509Store(resolvedPath);
+    //                }
+    //                else
+    //                {
+    //                    store = new X509Store(storePath, StoreLocation.LocalMachine);
+    //                }
 
-                    store.Open(OpenFlags.ReadOnly);
+    //                store.Open(OpenFlags.ReadOnly);
 
-                    var certificates = store.Certificates.Find(
-                        X509FindType.FindBySubjectName,
-                        subjectName,
-                        validOnly: false);
+    //                var certificates = store.Certificates.Find(
+    //                    X509FindType.FindBySubjectName,
+    //                    subjectName,
+    //                    validOnly: false);
 
-                    if (certificates.Count > 0)
-                    {
-                        return certificates[0];
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"加载现有证书失败: {ex.Message}");
-                }
-                finally
-                {
-                    store?.Close();
-                }
+    //                if (certificates.Count > 0)
+    //                {
+    //                    return certificates[0];
+    //                }
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                Console.WriteLine($"加载现有证书失败: {ex.Message}");
+    //            }
+    //            finally
+    //            {
+    //                store?.Close();
+    //            }
 
-                Console.WriteLine("创建新的服务器证书...");
-                var newCertificate = CreateNewCertificate();
+    //            Console.WriteLine("创建新的服务器证书...");
+    //            var newCertificate = CreateNewCertificate();
 
-                try
-                {
-                    if (storeType.Equals("Directory", StringComparison.OrdinalIgnoreCase))
-                    {
-                        store = new X509Store(resolvedPath);
-                    }
-                    else
-                    {
-                        store = new X509Store(storePath, StoreLocation.LocalMachine);
-                    }
-                    store.Open(OpenFlags.ReadWrite);
-                    store.Add(newCertificate);
-                    Console.WriteLine("新证书已保存到存储");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"保存证书失败: {ex.Message}");
-                }
-                finally
-                {
-                    store?.Close();
-                }
+    //            try
+    //            {
+    //                if (storeType.Equals("Directory", StringComparison.OrdinalIgnoreCase))
+    //                {
+    //                    store = new X509Store(resolvedPath);
+    //                }
+    //                else
+    //                {
+    //                    store = new X509Store(storePath, StoreLocation.LocalMachine);
+    //                }
+    //                store.Open(OpenFlags.ReadWrite);
+    //                store.Add(newCertificate);
+    //                Console.WriteLine("新证书已保存到存储");
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                Console.WriteLine($"保存证书失败: {ex.Message}");
+    //            }
+    //            finally
+    //            {
+    //                store?.Close();
+    //            }
 
-                return newCertificate;
-            });
-        }
+    //            return newCertificate;
+    //        });
+    //    }
 
-        private X509Certificate2 CreateNewCertificate()
-        {
-          return (X509Certificate2)CertificateFactory.CreateCertificate(
-                applicationUri: _config.ApplicationUri,
-                applicationName:"plc.melsec",
-                subjectName: _config.SecurityConfiguration.ApplicationCertificate.SubjectName,
-                domainNames: new string[] { _config.ApplicationName, System.Net.Dns.GetHostName() }
-            );
-        }
+    //    private X509Certificate2 CreateNewCertificate()
+    //    {
+    //      return (X509Certificate2)CertificateFactory.CreateCertificate(
+    //            applicationUri: _config.ApplicationUri,
+    //            applicationName:"plc.melsec",
+    //            subjectName: _config.SecurityConfiguration.ApplicationCertificate.SubjectName,
+    //            domainNames: new string[] { _config.ApplicationName, System.Net.Dns.GetHostName()
+    //            }
+    //        );
+    //    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+    //    public void Dispose()
+    //    {
+    //        Dispose(true);
+    //        GC.SuppressFinalize(this);
+    //    }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _cts.Dispose();
-                if (_isRunning)
-                {
-                    StopAsync().Wait();
-                }
-            }
-        }
+    //    protected virtual void Dispose(bool disposing)
+    //    {
+    //        if (disposing)
+    //        {
+    //            _cts.Dispose();
+    //            if (_isRunning)
+    //            {
+    //                StopAsync().Wait();
+    //            }
+    //        }
+    //    }
 
-        ~OpcUaPublisher()
-        {
-            Dispose(false);
-        }
-    }
+    //    ~OpcUaPublisher()
+    //    {
+    //        Dispose(false);
+    //    }
+    //}
 
 
     ///// <summary>
