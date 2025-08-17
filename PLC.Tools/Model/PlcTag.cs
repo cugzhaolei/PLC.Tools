@@ -58,7 +58,7 @@ namespace PLC.Tools.Model
         /// 数据长度
         /// </summary>
         [JsonProperty("DataLength")]
-        public string DataLength { get; set; }
+        public int DataLength { get; set; }
 
         /// <summary>
         /// 字符串编码方式
