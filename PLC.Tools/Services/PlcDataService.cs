@@ -15,7 +15,7 @@ namespace PLC.Tools.Services
     {
         private readonly IConfigManager _configManager;
         private readonly IPlcConnectionFactory _plcConnectionFactory;
-        private readonly IEnumerable<IDataPublisher> _dataPublishers;
+        //private readonly IEnumerable<IDataPublisher> _dataPublishers;
         private readonly Dictionary<string, IPlcConnection> _plcConnections = new();
         private readonly object _lockObj = new();
 
@@ -27,12 +27,13 @@ namespace PLC.Tools.Services
         /// <param name="dataPublishers">数据发布器集合</param>
         public PlcDataService(
             IConfigManager configManager,
-            IPlcConnectionFactory plcConnectionFactory,
-            IEnumerable<IDataPublisher> dataPublishers)
+            IPlcConnectionFactory plcConnectionFactory
+            //IEnumerable<IDataPublisher> dataPublishers
+            )
         {
             _configManager = configManager ?? throw new ArgumentNullException(nameof(configManager));
             _plcConnectionFactory = plcConnectionFactory ?? throw new ArgumentNullException(nameof(plcConnectionFactory));
-            _dataPublishers = dataPublishers ?? throw new ArgumentNullException(nameof(dataPublishers));
+            //_dataPublishers = dataPublishers ?? throw new ArgumentNullException(nameof(dataPublishers));
         }
 
         /// <summary>
@@ -219,7 +220,7 @@ namespace PLC.Tools.Services
                 result.Data = readResult.Content;
 
                 // 发布数据
-                await PublishDataAsync(result);
+                //await PublishDataAsync(result);
 
                 return result;
             }
@@ -249,19 +250,19 @@ namespace PLC.Tools.Services
         /// 发布数据到所有发布器
         /// </summary>
         /// <param name="plcData">PLC数据</param>
-        private async Task PublishDataAsync(PlcData plcData)
-        {
-            foreach (var publisher in _dataPublishers)
-            {
-                try
-                {
-                    await publisher.PublishDataAsync(plcData);
-                }
-                catch
-                {
-                    // 单个发布器失败不影响其他发布器
-                }
-            }
-        }
+        //private async Task PublishDataAsync(PlcData plcData)
+        //{
+        //    foreach (var publisher in _dataPublishers)
+        //    {
+        //        try
+        //        {
+        //            await publisher.PublishDataAsync(plcData);
+        //        }
+        //        catch
+        //        {
+        //            // 单个发布器失败不影响其他发布器
+        //        }
+        //    }
+        //}
     }
 }

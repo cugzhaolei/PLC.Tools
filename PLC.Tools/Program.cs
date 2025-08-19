@@ -23,9 +23,8 @@ builder.Services.AddSingleton<WebSocketPublisher>();
 
 // 配置数据发布器
 builder.Services.AddSingleton<IDataPublisher, HttpPublisher>();
-builder.Services.AddSingleton<IDataPublisher>(sp =>
-new MqttPublisher(sp.GetRequiredService<IPlcDataService>(), "localhost", 1883));
-builder.Services.AddSingleton<IDataPublisher, OpcUaPublisher>();
+builder.Services.AddSingleton<IDataPublisher>(sp =>new MqttPublisher("localhost", 1883));
+//builder.Services.AddSingleton<IDataPublisher, OpcUaPublisher>();
 
 // 构建应用程序
 var app = builder.Build();

@@ -15,7 +15,7 @@ namespace PLC.Tools.Publishers
 {
     public class MqttPublisher : IDataPublisher
     {
-        private readonly IPlcDataService _plcDataService;
+        //private readonly IPlcDataService _plcDataService;
         private readonly string _brokerAddress;
         private readonly int _brokerPort;
         private IMqttClient _mqttClient;
@@ -23,9 +23,9 @@ namespace PLC.Tools.Publishers
 
         public string Name => "MQTT Publisher";
 
-        public MqttPublisher(IPlcDataService plcDataService, string brokerAddress = "localhost", int brokerPort = 1883)
+        public MqttPublisher( string brokerAddress = "localhost", int brokerPort = 1883)
         {
-            _plcDataService = plcDataService ?? throw new ArgumentNullException(nameof(plcDataService));
+            //_plcDataService = plcDataService ?? throw new ArgumentNullException(nameof(plcDataService));
             _brokerAddress = brokerAddress;
             _brokerPort = brokerPort;
         }
