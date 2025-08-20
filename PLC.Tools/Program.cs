@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using PLC.Tools.Implementations;
 using PLC.Tools.Interfaces;
+using PLC.Tools.OPCUA.Service;
 using PLC.Tools.Publishers;
 using PLC.Tools.Services;
 
@@ -58,6 +59,11 @@ foreach (var publisher in publishers)
 {
     await publisher.StartAsync();
 }
+
+OpcuaManagement server = new OpcuaManagement();
+server.CreateServerInstance();
+Console.WriteLine("OPC-UA服务已启动...");
+Console.ReadLine();
 
 // 运行应用程序
 app.Run();
